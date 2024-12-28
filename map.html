@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Your Location</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        #map {
+            height: 80%;
+        }
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info" id="info">Search for a location or click on the map to get coordinates.</div>
+    <div id="map"></div>
+
+    <!-- Leaflet.js Library -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <script>
+        let map, userLocationMarker;
+
+        // Fungsi untuk memulai peta
+        function initMap() {
+            // Set lokasi awal peta (misalnya di Indonesia)
+            const initialLat = -6.2316786;
+            const initialLon = 107.1004595;
+
+            // Membuat peta menggunakan OpenStreetMap sebagai sumber peta
+            map = L.map('map').setView([initialLat, initialLon], 15);
+
+            // Menambahkan tile peta dari OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Menambahkan marker di lokasi awal
+            userLocationMarker = L.marker([initialLat, initialLon]).addTo(map)
+                .bindPopup("Initial Location: (-0.7893, 113.9213)")
+                .openPopup();
+
+            // Menambahkan kontrol pencarian geocoding (alamat atau tempat)
+            L.Control.geocoder({
+                defaultMarkGeocode: false
+            }).on('markgeocode', function(e) {
+                const lat = e.geocode.center.lat;
+                const lon = e.geocode.center.lng;
+
+                // Menampilkan koordinat tempat yang dicari
+                document.getElementById('info').innerHTML = `Latitude: ${lat.toFixed(6)}<br>Longitude: ${lon.toFixed(6)}`;
+
+                // Menambahkan marker di lokasi yang dicari
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup(`Location: ${e.geocode.name} (${lat.toFixed(6)}, ${lon.toFixed(6)})`)
+                    .openPopup();
+
+                // Mengatur peta untuk menampilkan lokasi yang dicari
+                map.setView([lat, lon], 15);
+            }).addTo(map);
+        }
+
+        // Inisialisasi peta saat halaman selesai dimuat
+        window.onload = initMap;
+    </script>
+</body>
+</html>
